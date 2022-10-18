@@ -1,7 +1,8 @@
 # The startup of the code goes python chat.py for the server and python chat.py [ip_address] for a client
-# Multiple clients on one machine will break the p2p functionality due to the port still being open
+# Multiple clients on one machine will break the p2p functionality due to the port still being open and staying open indefinatly when trying to open
 # This code was written by Dominic and Collin and ruined by Harry
-#
+# Somewhat inspriered by howCode on youtube
+# 
 import threading
 import os
 import time
@@ -84,11 +85,11 @@ class Client:
         write_thread = threading.Thread(target=self.write, args=(client,))
         write_thread.start()
 
-    def receive(self, client):
+    def receive(self, client): #recive message from server
         while True:
             try:
                 message = client.recv(1024)
-                if message[0:1] == b'':
+                if message[0:1] == b'': #biggest pain right here
                     print("An error occurred!")
                     connceted.connected = False
                     client.close()
@@ -105,23 +106,24 @@ class Client:
                 client.close()
                 break
 
-    def write(self, client):
+    def write(self, client): #send message to server
         while True:
             message = f'{connceted.nickname}: {input("")}'
             client.send(message.encode('utf-8'))
-    def updatePeers(self, peerData):
+            
+    def updatePeers(self, peerData): #takes the peers from the server and puts them into the p2p peers list
         p2p.peers = str(peerData, 'utf-8'). split(",")[:-1]
-        if p2p.knowIP == False:
+        if p2p.knowIP == False: # gets your IP
             p2p.ipAddress = p2p.peers[len(p2p.peers)-1]
             p2p.knowIP = True
             print(p2p.ipAddress)
 
 
-class p2p:
+class p2p: # holds list of connected ip_Addresses
     peers = ['127.0.0.1']
     ipAddress = ''
     knowIP = False
-class connceted:
+class connceted: #checks connection and holds nickname
     connected = False
     nickname = ""
 
@@ -129,17 +131,17 @@ class connceted:
 
 
 
-if (len(sys.argv) == 1):
+if (len(sys.argv) == 1): #starts the program
     pid=os.fork()
     if pid:
         server = Server()
     else:
         connceted.connected = True
         client = Client(p2p.peers[0])
-if (len(sys.argv) > 1):
+if (len(sys.argv) > 1):  #starts the program client only
     connceted.connected = True
     client = Client(sys.argv[1])
-while True:
+while True: #attempt at moving the server
     try:
         if connceted.connected == False:
             print("Connecting")

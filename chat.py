@@ -1,9 +1,15 @@
+# The startup of the code goes python chat.py for the server and python chat.py [ip_address] for a client
+# Multiple clients on one machine will break the p2p functionality due to the port still being open
+# This code was written by Dominic and Collin and ruined by Harry
+#
 import threading
 import os
 import time
 import socket
 import sys
 from random import randint
+
+
 
 class Server:
     clients = []
@@ -28,13 +34,17 @@ class Server:
 
     #Lets everyone know who joined the chat and the particular client it worked
             client.send('Connected to the server!' .encode('utf-8'))
-            self.broadcast(f'{nickname} joined the chat' .encode('utf-8'))
+            self.broadcast(f'{nickname} joined the chat' .encode('utf-8'), client)
             
             thread = threading.Thread(target=self.handle, args=(client, address))
             thread.start()
 
 
-    def broadcast(self, message):
+    def broadcast(self, message, client1):
+        for client in self.clients:
+            if client != client1:
+                client.send(message)
+    def disconect(self, message):
         for client in self.clients:
             client.send(message)
 
@@ -42,13 +52,13 @@ class Server:
         while True:
             try:
                 message = client.recv(1024)
-                self.broadcast(message)
+                self.broadcast(message, client)
             except:
                 index = self.clients.index(client)
                 self.clients.remove(client)
                 client.close()
                 nickname = self.nicknames[index]
-                self.broadcast(f'{nickname} left the chat' .encode('utf-8'))
+                self.disconect(f'{nickname} left the chat' .encode('utf-8'))
                 self.nicknames.remove(nickname)
                 self.peers.remove(address[0])
                 self.sendPeers()
@@ -101,41 +111,56 @@ class Client:
             client.send(message.encode('utf-8'))
     def updatePeers(self, peerData):
         p2p.peers = str(peerData, 'utf-8'). split(",")[:-1]
+        if p2p.knowIP == False:
+            p2p.ipAddress = p2p.peers[len(p2p.peers)-1]
+            p2p.knowIP = True
+            print(p2p.ipAddress)
 
 
 class p2p:
     peers = ['127.0.0.1']
+    ipAddress = ''
+    knowIP = False
 class connceted:
     connected = False
     nickname = ""
 
 
-if (len(sys.argv) == 2):
+
+
+
+if (len(sys.argv) == 1):
     pid=os.fork()
     if pid:
         server = Server()
     else:
         connceted.connected = True
         client = Client(p2p.peers[0])
-if (len(sys.argv) > 2):
+if (len(sys.argv) > 1):
     connceted.connected = True
-    client = Client(sys.argv[2])
+    client = Client(sys.argv[1])
 while True:
     try:
         if connceted.connected == False:
             print("Connecting")
             time.sleep(randint(1, 5))
-            for peer in p2p.peers:
+            if connceted.connected == False:
+                try:
+                    client = Client(p2p.peers[1])
+                except KeyboardInterrupt:
+                    sys.exit(0)
+                except:
+                    pass
+            if p2p.peers[1] == p2p.ipAddress:
                 if connceted.connected == False:
                     try:
-                        client = Client(peer)
-                        connceted.connected = True
+                        server = Server()
+                    except KeyboardInterrupt:
+                        sys.exit(0)
                     except:
-                        pass
-                    if connceted.connected == False:
-                        try:
-                            server = Server()
-                        except:
-                            print("server no start")
+                        print('lol')
+    except KeyboardInterrupt:
+        sys.exit(0)
     except:
         pass
+    

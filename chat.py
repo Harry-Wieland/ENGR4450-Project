@@ -1,7 +1,7 @@
 # The startup of the code goes python chat.py for the server and python chat.py [ip_address] for a client
-# Multiple clients on one machine will break the p2p functionality due to the port still being open and staying open indefinatly when trying to open
+# Multiple clients on one machine will break the p2p functionality due to the port still being open and staying open indefinitely when trying to open
 # This code was written by Dominic and Collin and ruined by Harry
-# Somewhat inspriered by howCode on youtube
+# Somewhat inspired by NeuralNine and howCode on youtube
 # 
 import threading
 import os
@@ -44,10 +44,16 @@ class Server:
     def broadcast(self, message, client1):
         for client in self.clients:
             if client != client1:
-                client.send(message)
+                try:
+                    client.send(message)
+                except:
+                    pass
     def disconect(self, message):
         for client in self.clients:
-            client.send(message)
+            try:
+                client.send(message)
+            except:
+                pass
 
     def handle(self, client, address):
         while True:
@@ -69,7 +75,10 @@ class Server:
         for peer in self.peers:
             p = p + peer + ","
         for client in self.clients:
-            client.send(b'\x11' + p.encode('utf-8'))
+            try:
+                client.send(b'\x11' + p.encode('utf-8'))
+            except:
+                pass
 
 class Client:
 
@@ -141,6 +150,7 @@ if (len(sys.argv) == 1): #starts the program
 if (len(sys.argv) > 1):  #starts the program client only
     connceted.connected = True
     client = Client(sys.argv[1])
+
 while True: #attempt at moving the server
     try:
         if connceted.connected == False:

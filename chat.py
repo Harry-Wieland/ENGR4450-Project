@@ -92,7 +92,7 @@ class Client:
         receive_thread = threading.Thread(target=self.receive)
         receive_thread.start()
 
-        write_thread = threading.Thread(target=self.write)
+        write_thread = threading.Thread(target=self.write, args=(Client.client))
         write_thread.start()
 
     def receive(self): #recive message from server
@@ -119,17 +119,17 @@ class Client:
             if Client.end == True:
                 break
 
-    def write(self): #send message to server
+    def write(self, client): #send message to server
         while True:
             message = f'{connceted.nickname}: {input("")}'
             try:
-                Client.client.send(message.encode('utf-8'))
+                client.send(message.encode('utf-8'))
             except:
                 print("an error occured")
                 
                 
             if Client.end == True:
-                Client.client.close()
+                client.close()
                 connceted.connected = False
                 break
             

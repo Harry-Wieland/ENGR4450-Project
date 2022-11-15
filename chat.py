@@ -20,6 +20,7 @@ class Server:
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind(('0.0.0.0', 55555))
         server.listen()
+        connceted.isServer = True
         while True:
             client, address = server.accept()
             
@@ -129,6 +130,7 @@ class Client:
                 
             if Client.end == True:
                 Client.client.close()
+                connceted.connected = False
                 break
             
     def updatePeers(self, peerData): #takes the peers from the server and puts them into the p2p peers list
@@ -146,7 +148,7 @@ class p2p: # holds list of connected ip_Addresses
 class connceted: #checks connection and holds nickname
     connected = False
     nickname = ""
-
+    isServer = False
 
 
 
@@ -165,8 +167,15 @@ if (len(sys.argv) > 1):  #starts the program client only
 while True: #attempt at moving the server
     try:
         if connceted.connected == False:
+            if p2p.peers[1] == '127.0.0.1':
+                try:
+                    p2p.peers[1] = p2p.peers[2]
+                except:
+                    pass
             print("Connecting")
             time.sleep(randint(1, 5))
+            if connceted.isServer == True:
+                client = Client('127.0.0.1')
             try:
                 print(p2p.peers[1])
                 client = Client(p2p.peers[1])

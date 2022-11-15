@@ -95,8 +95,8 @@ class Client:
     end = False
     client = None
     def __init__(self, address):
-        self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.client.connect((address, 55555))
+        Client.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        Client.client.connect((address, 55555))
         if connceted.nickname == "":
             connceted.nickname = input("Choose a nickname ")
         receive_thread = threading.Thread(target=self.receive)
@@ -108,40 +108,40 @@ class Client:
     def receive(self): #recive message from server
         while True:
             try:
-                message = self.client.recv(1024)
+                message = Client.client.recv(1024)
                 if message[0:1] == b'': #biggest pain right here
                     print("An error occurred!")
                     connceted.connected = False
-                    self.client.close()
+                    Client.client.close()
                     break
                 if str(message, 'utf-8') == 'NICK':
-                    self.client.send(connceted.nickname.encode('utf-8'))
+                    Client.client.send(connceted.nickname.encode('utf-8'))
                 elif message[0:1] == b'\x11':
-                    self.updatePeers(message[1:])
+                    Client.updatePeers(message[1:])
                 else:
                     print(str(message, 'utf-8'))
             except:
                 print("An error occurred!")
-                self.client.close()
+                Client.client.close()
                 connceted.connected = False
-                self.end = True
+                Client.end = True
                 break
-            if self.end == True:
+            if Client.end == True:
                 break
 
     def write(self): #send message to server
         while True:
             message = f'{connceted.nickname}: {input("")}'
             try:
-                self.client.send(message.encode('utf-8'))
+                Client.client.send(message.encode('utf-8'))
             except:
                 print("an error occured")
-                self.client.connect(('127.0.0.1', 55555))
+                Client.client.connect(('127.0.0.1', 55555))
                 message = b'\x12'
-                self.client.send(message)
+                Client.client.send(message)
                 
-            if self.end == True:
-                self.client.close()
+            if Client.end == True:
+                Client.client.close()
                 connceted.connected = False
                 break
             

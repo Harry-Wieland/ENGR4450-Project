@@ -17,6 +17,7 @@ class Server:
     nicknames = []
     peers = []
     def __init__(self):
+        print("Starting Server")
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         server.bind(('0.0.0.0', 55555))
         server.listen()
@@ -189,7 +190,7 @@ while True: #attempt at moving the server
             except:
                 pass
             if p2p.peers[1] == p2p.ipAddress:
-                print("Starting Server")
+                print("ReStarting Server")
                 try:
                     pid=os.fork()
                     if pid:

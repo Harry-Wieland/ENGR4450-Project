@@ -167,7 +167,9 @@ while True: #attempt at moving the server
             if p2p.peers[1] == p2p.ipAddress:
                 print("Starting Server")
                 try:
-                    server = Server()
+                    pid=os.fork()
+                    if pid:
+                        server = Server()
                 except KeyboardInterrupt:
                     sys.exit(0)
                 except:

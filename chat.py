@@ -46,11 +46,7 @@ class Server:
             thread.start()
 
     def fix(self, client1):
-        client1.send('NICK'.encode('utf-8'))
-        i = -1
-        for x in self.clients:
-            i += 1
-        self.clients[0] = self.clients[i]
+        self.clients[0] = None
         
     def broadcast(self, message, client1):
         for client in self.clients:

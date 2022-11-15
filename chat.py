@@ -142,10 +142,10 @@ class Client:
             try:
                 Client.client.send(message.encode('utf-8'))
             except:
-                print("an error occured")
                 Client.client.connect(('127.0.0.1', 55555))
-                message = b'\x12'
-                Client.client.send(message)
+                fix = b'\x12'
+                Client.client.send(fix)
+                message = f'{connceted.nickname}: {input("")}'
                 
             if Client.end == True:
                 Client.client.close()

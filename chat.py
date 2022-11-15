@@ -159,6 +159,7 @@ while True: #attempt at moving the server
             try:
                 print(p2p.peers[1])
                 client = Client(p2p.peers[1])
+                connceted.connected = True
             except KeyboardInterrupt:
                 sys.exit(0)
             except:

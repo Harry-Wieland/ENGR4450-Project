@@ -67,7 +67,7 @@ class Server:
             try:
                 message = client.recv(1024)
                 if message == b'\x12':
-                    client = self.fix(client)
+                    self.fix(client)
                 else:
                     self.broadcast(message, client)
             except:

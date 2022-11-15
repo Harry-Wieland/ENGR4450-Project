@@ -68,6 +68,8 @@ class Server:
                 message = client.recv(1024)
                 if message == b'\x12':
                     self.fix(client)
+                elif message == b'\x20':
+                    pass
                 else:
                     self.broadcast(message, client)
             except:
@@ -100,7 +102,12 @@ class Client:
             connceted.nickname = input("Choose a nickname ")
         receive_thread = threading.Thread(target=self.receive)
         receive_thread.start()
-
+        try:
+            Client.client.send(b'\x20')
+        except:
+            Client.client.connect(('127.0.0.1', 55555))
+            message = b'\x12'
+            Client.client.send(message)
         write_thread = threading.Thread(target=self.write)
         write_thread.start()
 

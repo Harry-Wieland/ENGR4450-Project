@@ -102,6 +102,7 @@ class Client:
             connceted.nickname = input("Choose a nickname ")
         receive_thread = threading.Thread(target=self.receive)
         receive_thread.start()
+        Client.client.send(connceted.nickname.encode('utf-8'))
         try:
             Client.client.send(b'\x20')
         except:
@@ -121,7 +122,7 @@ class Client:
                     Client.client.close()
                     break
                 if str(message, 'utf-8') == 'NICK':
-                    Client.client.send(connceted.nickname.encode('utf-8'))
+                    pass
                 elif message[0:1] == b'\x11':
                     self.updatePeers(message[1:])
                 else:

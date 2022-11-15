@@ -126,7 +126,7 @@ class Client:
                 Client.client.send(message.encode('utf-8'))
             except:
                 print("an error occured")
-                Client.client.connect(('127.0.0.1', 55555))
+                
                 
             if Client.end == True:
                 Client.client.close()

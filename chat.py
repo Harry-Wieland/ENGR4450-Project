@@ -84,7 +84,6 @@ class Server:
 class Client:
     end = False
     client = None
-    breaks = False
     def __init__(self, address):
         Client.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         Client.client.connect((address, 55555))
@@ -119,8 +118,6 @@ class Client:
                 break
             if Client.end == True:
                 break
-            if Client.breaks == True:
-                break
 
     def write(self): #send message to server
         while True:
@@ -129,9 +126,7 @@ class Client:
                 Client.client.send(message.encode('utf-8'))
             except:
                 print("an error occured")
-                Client.breaks = True
                 Client.client.connect(('127.0.0.1', 55555))
-                Client.breaks = False
                 
             if Client.end == True:
                 Client.client.close()

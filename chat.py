@@ -28,16 +28,19 @@ class Server:
 
     #Sends the client a keyword so user knows to send a nickname
             client.send('NICK'.encode('utf-8'))
-            nickname = client.recv(1024).decode('utf-8')
-            self.nicknames.append(nickname)
-            self.clients.append(client)
-            self.peers.append(address[0])
-            self.sendPeers()
-            time.sleep(.1)
-
-    #Lets everyone know who joined the chat and the particular client it worked
-            client.send('Connected to the server!' .encode('utf-8'))
-            self.broadcast(f'{nickname} joined the chat' .encode('utf-8'), client)
+            message = client.recv(1024)
+            if message == b'\x12':
+                self.fix(client)
+            else:
+                nickname = message.decode('utf-8')
+                self.nicknames.append(nickname)
+                self.clients.append(client)
+                self.peers.append(address[0])
+                self.sendPeers()
+                time.sleep(.1)
+                #Lets everyone know who joined the chat and the particular client it worked
+                client.send('Connected to the server!' .encode('utf-8'))
+                self.broadcast(f'{nickname} joined the chat' .encode('utf-8'), client)
             
             thread = threading.Thread(target=self.handle, args=(client, address))
             thread.start()

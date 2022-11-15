@@ -82,44 +82,44 @@ class Server:
 
 class Client:
     end = False
-    
+    client = None
     def __init__(self, address):
-        client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client.connect((address, 55555))
+        Client.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        Client.client.connect((address, 55555))
         if connceted.nickname == "":
             connceted.nickname = input("Choose a nickname ")
-        receive_thread = threading.Thread(target=self.receive, args=(client,))
+        receive_thread = threading.Thread(target=self.receive)
         receive_thread.start()
 
-        write_thread = threading.Thread(target=self.write, args=(client,))
+        write_thread = threading.Thread(target=self.write)
         write_thread.start()
 
-    def receive(self, client): #recive message from server
+    def receive(self): #recive message from server
         while True:
             try:
-                message = client.recv(1024)
+                message = Client.client.recv(1024)
                 if message[0:1] == b'': #biggest pain right here
                     print("An error occurred!")
                     connceted.connected = False
-                    client.close()
+                    Client.client.close()
                     break
                 if str(message, 'utf-8') == 'NICK':
-                    client.send(connceted.nickname.encode('utf-8'))
+                    Client.client.send(connceted.nickname.encode('utf-8'))
                 elif message[0:1] == b'\x11':
                     self.updatePeers(message[1:])
                 else:
                     print(str(message, 'utf-8'))
             except:
                 print("An error occurred!")
+                Client.client.close()
                 connceted.connected = False
                 Client.end = True
-                client.close()
                 break
 
-    def write(self, client): #send message to server
+    def write(self): #send message to server
         while True:
             message = f'{connceted.nickname}: {input("")}'
-            client.send(message.encode('utf-8'))
+            Client.client.send(message.encode('utf-8'))
             if Client.end == True:
                 break
             

@@ -121,6 +121,7 @@ class Client:
             message = f'{connceted.nickname}: {input("")}'
             Client.client.send(message.encode('utf-8'))
             if Client.end == True:
+                Client.client.close()
                 break
             
     def updatePeers(self, peerData): #takes the peers from the server and puts them into the p2p peers list

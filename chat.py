@@ -164,14 +164,14 @@ class connceted: #checks connection and holds nickname
 
 
 
-if (len(sys.argv) == 0): #starts the program
+if (len(sys.argv) == 1): #starts the program
     pid=os.fork()
     if pid:
         server = Server()
     else:
         connceted.connected = True
         client = Client(p2p.peers[0])
-if (len(sys.argv) > 0):  #starts the program client only
+if (len(sys.argv) > 1):  #starts the program client only
     connceted.connected = True
     client = Client(sys.argv[1])
 

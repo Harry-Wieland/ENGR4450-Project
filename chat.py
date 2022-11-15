@@ -115,11 +115,18 @@ class Client:
                 connceted.connected = False
                 Client.end = True
                 break
+            if Client.end == True:
+                break
 
     def write(self): #send message to server
         while True:
             message = f'{connceted.nickname}: {input("")}'
-            Client.client.send(message.encode('utf-8'))
+            try:
+                Client.client.send(message.encode('utf-8'))
+            except:
+                print("an error occured")
+                Client.end = True
+                
             if Client.end == True:
                 Client.client.close()
                 break

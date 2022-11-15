@@ -157,6 +157,7 @@ while True: #attempt at moving the server
             print("Connecting")
             time.sleep(randint(1, 5))
             try:
+                print(p2p.peers[1])
                 client = Client(p2p.peers[1])
             except KeyboardInterrupt:
                 sys.exit(0)

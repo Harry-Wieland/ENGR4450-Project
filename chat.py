@@ -81,7 +81,7 @@ class Server:
                 pass
 
 class Client:
-
+    end = False
     
     def __init__(self, address):
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -112,6 +112,7 @@ class Client:
             except:
                 print("An error occurred!")
                 connceted.connected = False
+                Client.end = True
                 client.close()
                 break
 
@@ -119,6 +120,8 @@ class Client:
         while True:
             message = f'{connceted.nickname}: {input("")}'
             client.send(message.encode('utf-8'))
+            if Client.end == True:
+                break
             
     def updatePeers(self, peerData): #takes the peers from the server and puts them into the p2p peers list
         p2p.peers = str(peerData, 'utf-8'). split(",")[:-1]

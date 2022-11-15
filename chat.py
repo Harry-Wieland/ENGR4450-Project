@@ -117,7 +117,7 @@ class Client:
                 if str(message, 'utf-8') == 'NICK':
                     Client.client.send(connceted.nickname.encode('utf-8'))
                 elif message[0:1] == b'\x11':
-                    Client.updatePeers(message[1:])
+                    self.updatePeers(message[1:])
                 else:
                     print(str(message, 'utf-8'))
             except:

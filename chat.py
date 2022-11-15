@@ -156,21 +156,20 @@ while True: #attempt at moving the server
         if connceted.connected == False:
             print("Connecting")
             time.sleep(randint(1, 5))
-            if connceted.connected == False:
+            try:
+                client = Client(p2p.peers[1])
+            except KeyboardInterrupt:
+                sys.exit(0)
+            except:
+                pass
+            if p2p.peers[1] == p2p.ipAddress:
+                print("Starting Server")
                 try:
-                    client = Client(p2p.peers[1])
+                    server = Server()
                 except KeyboardInterrupt:
                     sys.exit(0)
                 except:
-                    pass
-            if p2p.peers[1] == p2p.ipAddress:
-                if connceted.connected == False:
-                    try:
-                        server = Server()
-                    except KeyboardInterrupt:
-                        sys.exit(0)
-                    except:
-                        print('lol')
+                    print('Error')
     except KeyboardInterrupt:
         sys.exit(0)
     except:

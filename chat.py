@@ -351,9 +351,8 @@ class Game:
             t -= 1
 
 
-
+game = Game()
 if (len(sys.argv) == 1): #starts the program
-    game = Game()
     pid=os.fork()
     if pid:
         server = Server()

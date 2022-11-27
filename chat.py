@@ -135,22 +135,22 @@ class Client:
                 elif message[0:1] == b'\x13':
                     self.updateNicknames(message[1:])
                 elif message[0:1] == b'\x14':
-                    Game.game = False
-                    Game.dead = False
+                    game.game = False
+                    game.dead = False
                     print("game end mafia wins")
                 elif message[0:1] == b'\x15':
-                    Game.game = False
-                    Game.dead = False
+                    game.game = False
+                    game.dead = False
                     print("game end town wins")
                 elif message[0:1] == b'\x16':
-                    Game.otherVote(message[1:])
+                    game.otherVote(message[1:])
                 elif message[0:1] == b'\x17':
-                    Game.otherKill(message[1:])
+                    game.otherKill(message[1:])
                 elif message[0:1] == b'\x18':
-                    Game.invest_player = message[1:]
-                    Game.start(0)
+                    game.invest_player = message[1:]
+                    game.start(0)
                 elif message[0:1] == b'\x19':
-                    Game.mafia_player = message[1:]
+                    game.mafia_player = message[1:]
                 else:
                     print(str(message, 'utf-8'))
             except:
@@ -166,10 +166,10 @@ class Client:
         while True:
             command = input("")
             if command[0:1] == '!':
-                Game.commands(command)
+                game.commands(command)
             elif not Game.day:
                 print("Its night")
-            elif Game.dead:
+            elif game.dead:
                 print("No speak, dead")
             else:
                 message = f'{connceted.nickname}: {command}'
@@ -246,6 +246,8 @@ class Game:
                 print("Not a name")
         elif command == "!nicknames":
             print(p2p.nicknames)
+        else:
+            print("Not a command")
                     
       
     def start(self, other):
@@ -351,6 +353,7 @@ class Game:
 
 
 if (len(sys.argv) == 1): #starts the program
+    game = Game()
     pid=os.fork()
     if pid:
         server = Server()

@@ -44,8 +44,8 @@ class Server:
                 self.sendPeers()
                 time.sleep(.1)
                 #Lets everyone know who joined the chat and the particular client it worked
-                client.send('Connected to the server!' .encode('utf-8'))
-                self.broadcast(f'{nickname} joined the chat' .encode('utf-8'), client)
+                client.send(cipher.encrypt('Connected to the server!'))
+                self.broadcast(cipher.encrypt(f'{nickname} joined the chat'), client)
             
             thread = threading.Thread(target=self.handle, args=(client, address))
             thread.start()
@@ -95,7 +95,7 @@ class Server:
         for peer in self.peers:
             p = p + peer + ","
         for nickname in self.nicknames:
-            n = n + nickname + "j"
+            n = n + nickname + ","
         for client in self.clients:
             try:
                 client.send(b'\x11' + p.encode('utf-8'))
@@ -156,7 +156,7 @@ class Client:
                 elif message[0:1] == b'\x19':
                     game.mafia_player = message[1:]
                 else:
-                    print(str(message, 'utf-8'))
+                    print(cipher.decrypt(message))
             except:
                 print("An error occurred!")
                 Client.client.close()
@@ -178,12 +178,13 @@ class Client:
             else:
                 message = f'{connceted.nickname}: {command}'
                 try:
-                    Client.client.send(message.encode('utf-8'))
+                    Client.client.send(cipher.encrypt(message))
                 except:
                     Client.client.connect(('127.0.0.1', 55555))
                     fix = b'\x12'
                     Client.client.send(fix)
                     message = f'{connceted.nickname}: {input("")}'
+                    Client.client.send(cipher.encrypt(message))
                 
             if Client.end == True:
                 Client.client.close()

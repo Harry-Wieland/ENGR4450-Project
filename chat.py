@@ -218,7 +218,7 @@ class Game:
     invest_player = 0
     deadList = []
     dead = False
-    vote = defaultdict(0)
+    vote = defaultdict()
     voted = False
     day = True
     game = False

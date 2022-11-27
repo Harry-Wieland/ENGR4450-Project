@@ -11,7 +11,11 @@ import sys
 import random
 from random import randint
 from collections import defaultdict
+from Crypto.Cipher import AES
 
+key = b'Sixteen byte key'
+
+cipher = AES.new(key, AES.MODE_EAX)
 
 class Server:
     clients = []

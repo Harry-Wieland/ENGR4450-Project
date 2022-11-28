@@ -81,6 +81,16 @@ class Server:
                     self.fix(client)
                 elif message == b'\x20':
                     pass
+                elif message == b'':
+                    index = self.clients.index(client)
+                    self.clients.pop(index)
+                    client.close()
+                    nickname = self.nicknames[index]
+                    self.disconect(cipher.encrypt(bytes(f'{nickname} left the chat', 'utf-8')))
+                    self.nicknames.remove(nickname)
+                    self.peers.remove(address[0])
+                    self.sendPeers()
+                    break                
                 else:
                     self.broadcast(message, client)
             except:

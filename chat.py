@@ -256,13 +256,17 @@ class Game:
                 print("Not a name")
         elif command == "!nicknames":
             print(p2p.nicknames)
+        elif command == "!help":
+            print("commands \n!start to start the game\n!vote [nickname] to vote a player\n!nicknames to get a list of nicknames")
+            print("!kill [nickname] to chose a player to die\n!invest [nickname] to investigate a player")
+            
         else:
-            print("Not a command")
+            print("Not a command use !help for list of commands")
                     
       
     def start(self, other):
         num_players = len(p2p.nicknames)
-        if other == 1:
+        if other == 1 and not self.game:
             if num_players > 7: 
                 self.total_players = num_players
                 self.mafia_player = mafia = random.randint(0, num_players)
@@ -278,7 +282,7 @@ class Game:
                 Client.client.send(b'\x19' + v)  
             else:
                 print("Not enough Players")
-        else:
+        elif not self.game:
             self.game = True
             timer_thread = threading.Thread(target=self.timer)
             timer_thread.start

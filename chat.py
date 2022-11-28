@@ -25,11 +25,7 @@ class Server:
     def __init__(self):
         print("Starting Server")
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        ## getting the hostname by socket.gethostname() method
-        hostname = socket.gethostname()
-        ## getting the IP address using socket.gethostbyname() method
-        ip_address = socket.gethostbyname(hostname)
-        server.bind((ip_address, 2345))
+        server.bind(('0.0.0.0', 2345))
         server.listen()
         connceted.isServer = True
         print("Server Running")

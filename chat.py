@@ -25,7 +25,11 @@ class Server:
     def __init__(self):
         print("Starting Server")
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        server.bind(('0.0.0.0', 55555))
+        ## getting the hostname by socket.gethostname() method
+        hostname = socket.gethostname()
+        ## getting the IP address using socket.gethostbyname() method
+        ip_address = socket.gethostbyname(hostname)
+        server.bind((ip_address, 2345))
         server.listen()
         connceted.isServer = True
         print("Server Running")
@@ -110,9 +114,11 @@ class Server:
 class Client:
     end = False
     client = None
+    ip_address = ''
     def __init__(self, address):
+        self.ip_address = address
         Client.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        Client.client.connect((address, 55555))
+        Client.client.connect((address, 2345))
         if connceted.nickname == "":
             connceted.nickname = input("Choose a nickname ")
         receive_thread = threading.Thread(target=self.receive)
@@ -121,7 +127,7 @@ class Client:
         try:
             Client.client.send(b'\x20')
         except:
-            Client.client.connect(('127.0.0.1', 55555))
+            Client.client.connect(('127.0.0.1', 2345))
             message = b'\x12'
             Client.client.send(message)
         write_thread = threading.Thread(target=self.write)
@@ -185,7 +191,7 @@ class Client:
                 try:
                     Client.client.send(cipher.encrypt(bytes(message, 'utf-8')))
                 except:
-                    Client.client.connect(('127.0.0.1', 55555))
+                    Client.client.connect((self.ip_address, 2345))
                     fix = b'\x12'
                     Client.client.send(fix)
                     message = f'{connceted.nickname}: {input("")}'
@@ -212,7 +218,7 @@ class Client:
             
 
 class p2p: # holds list of connected ip_Addresses
-    peers = ['127.0.0.1']
+    peers = []
     nicknames = []
     ipAddress = ''
     knowIP = False
@@ -369,16 +375,19 @@ game = Game()
 
 if __name__ == '__main__':
     if (len(sys.argv) == 1): #starts the program
+        print("here")
         server = Process(target=Server, args=())
         server.start()
-        time.sleep(2)
+        ## getting the hostname by socket.gethostname() method
+        hostname = socket.gethostname()
+        ## getting the IP address using socket.gethostbyname() method
+        ip_address = socket.gethostbyname(hostname)
+        print(ip_address)
         connceted.connected = True
-        client = Client(p2p.peers[0])
+        client = Client(ip_address)
     if (len(sys.argv) > 1):  #starts the program client only
         connceted.connected = True
         client = Client(sys.argv[1])
-
-
 
 while True: #attempt at moving the server
     try:

@@ -371,7 +371,7 @@ game = Game()
 
 if __name__ == '__main__':
     if (len(sys.argv) == 1): #starts the program
-        print("here")
+        #print("here")
         server = Process(target=Server, args=())
         server.start()
         ## getting the hostname by socket.gethostname() method

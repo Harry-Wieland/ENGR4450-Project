@@ -86,6 +86,7 @@ class Server:
                     self.clients.pop(index)
                     client.close()
                     nickname = self.nicknames[index]
+                    self.disconect("!dead" + nickname)
                     self.disconect(cipher.encrypt(bytes(f'{nickname} left the chat', 'utf-8')))
                     self.nicknames.remove(nickname)
                     self.peers.remove(address[0])
@@ -98,6 +99,7 @@ class Server:
                 self.clients.remove(client)
                 client.close()
                 nickname = self.nicknames[index]
+                self.disconect("!dead" + nickname)
                 self.disconect(cipher.encrypt(bytes(f'{nickname} left the chat', 'utf-8')))
                 self.nicknames.remove(nickname)
                 self.peers.remove(address[0])
@@ -252,6 +254,12 @@ class Game:
                 self.vote(number)
             except:
                 print("Not a name")
+        elif command[:5] == "!dead":
+            try:
+                number = p2p.nicknames.index(command[6:])
+                self.voteKill(number)
+            except:
+                print("Not a name")
         elif command == "!kill":
             try:
                 number = p2p.nicknames.index(command[6:])
@@ -307,7 +315,7 @@ class Game:
                 v = p2p.nicknames[number]
                 Client.client.send(b'\x17' + v)
                 if self.total_players < 3:
-                    self.game = False
+                    Client.client.send(b'\x14')
         else:
             print("it is day")
 
@@ -346,6 +354,8 @@ class Game:
         else:
             self.deadList.append(number)
             self.total_players -= 1
+            if self.total_players < 3:
+                Client.client.send(b'\x14')
             
     def otherKill(self, name):
         number = p2p.nicknames.index(name)

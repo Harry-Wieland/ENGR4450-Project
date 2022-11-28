@@ -11,7 +11,11 @@ import sys
 import random
 from random import randint
 from collections import defaultdict
+from cryptography.fernet import Fernet
 
+key = b'q50ZCbQISUOyxJKIanr8KHC2LherjkESbwkBiSbOiBI='
+
+cipher = Fernet(key)
 
 class Server:
     clients = []
@@ -40,8 +44,10 @@ class Server:
                 self.sendPeers()
                 time.sleep(.1)
                 #Lets everyone know who joined the chat and the particular client it worked
-                client.send('Connected to the server!' .encode('utf-8'))
-                self.broadcast(f'{nickname} joined the chat' .encode('utf-8'), client)
+                message = 'Connected to the server!'
+                client.send(cipher.encrypt(bytes(message, 'utf-8')))
+                message = f'{nickname} joined the chat'
+                self.broadcast(cipher.encrypt(bytes(message, 'utf-8')), client)
             
             thread = threading.Thread(target=self.handle, args=(client, address))
             thread.start()
@@ -80,7 +86,7 @@ class Server:
                 self.clients.remove(client)
                 client.close()
                 nickname = self.nicknames[index]
-                self.disconect(f'{nickname} left the chat' .encode('utf-8'))
+                self.disconect(cipher.encrypt(bytes(f'{nickname} left the chat', 'utf-8')))
                 self.nicknames.remove(nickname)
                 self.peers.remove(address[0])
                 self.sendPeers()
@@ -152,7 +158,8 @@ class Client:
                 elif message[0:1] == b'\x19':
                     game.mafia_player = message[1:]
                 else:
-                    print(str(message, 'utf-8'))
+                    msg = cipher.decrypt(message)
+                    print(str(msg, 'utf-8'))
             except:
                 print("An error occurred!")
                 Client.client.close()
@@ -174,13 +181,13 @@ class Client:
             else:
                 message = f'{connceted.nickname}: {command}'
                 try:
-                    Client.client.send(message.encode('utf-8'))
+                    Client.client.send(cipher.encrypt(bytes(message, 'utf-8')))
                 except:
                     Client.client.connect(('127.0.0.1', 55555))
                     fix = b'\x12'
                     Client.client.send(fix)
                     message = f'{connceted.nickname}: {input("")}'
-                    Client.client.send(message.encode('utf-8'))
+                    Client.client.send(cipher.encrypt(bytes(message, 'utf-8')))
                 
             if Client.end == True:
                 Client.client.close()

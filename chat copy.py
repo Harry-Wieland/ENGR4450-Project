@@ -4,7 +4,6 @@
 # Somewhat inspired by NeuralNine and howCode on youtube
 # 
 import threading
-from multiprocessing import Process
 import os
 import time
 import socket
@@ -28,7 +27,6 @@ class Server:
         server.bind(('0.0.0.0', 55555))
         server.listen()
         connceted.isServer = True
-        print("Server Running")
         while True:
             client, address = server.accept()
             
@@ -256,13 +254,17 @@ class Game:
                 print("Not a name")
         elif command == "!nicknames":
             print(p2p.nicknames)
+        elif command == "!help":
+            print("commands \n!start to start the game\n!vote [nickname] to vote a player\n!nicknames to get a list of nicknames")
+            print("!kill [nickname] to chose a player to die\n!invest [nickname] to investigate a player")
+            
         else:
-            print("Not a command")
+            print("Not a command use !help for list of commands")
                     
       
     def start(self, other):
         num_players = len(p2p.nicknames)
-        if other == 1:
+        if other == 1 and not self.game:
             if num_players > 7: 
                 self.total_players = num_players
                 self.mafia_player = mafia = random.randint(0, num_players)
@@ -278,7 +280,7 @@ class Game:
                 Client.client.send(b'\x19' + v)  
             else:
                 print("Not enough Players")
-        else:
+        elif not self.game:
             self.game = True
             timer_thread = threading.Thread(target=self.timer)
             timer_thread.start
@@ -362,19 +364,16 @@ class Game:
 
 
 game = Game()
-
-if __name__ == '__main__':
-    if (len(sys.argv) == 1): #starts the program
-        server = Process(target=Server, args=())
-        server.start()
-        time.sleep(2)
+if (len(sys.argv) == 1): #starts the program
+    pid=os.fork()
+    if pid:
+        server = Server()
+    else:
         connceted.connected = True
         client = Client(p2p.peers[0])
-    if (len(sys.argv) > 1):  #starts the program client only
-        connceted.connected = True
-        client = Client(sys.argv[1])
-
-
+if (len(sys.argv) > 1):  #starts the program client only
+    connceted.connected = True
+    client = Client(sys.argv[1])
 
 while True: #attempt at moving the server
     try:
@@ -392,11 +391,12 @@ while True: #attempt at moving the server
             if p2p.peers[1] == p2p.ipAddress:
                 print("ReStarting Server")
                 try:
-                    server = Process(target=Server, args=())
-                    server.start()
-                    time.sleep(2)
-                    connceted.connected = True
-                    client = Client(p2p.peers[1])
+                    pid=os.fork()
+                    if pid:
+                        server = Server()
+                    else:
+                        connceted.connected = True
+                        client = Client(p2p.peers[1])
                 except KeyboardInterrupt:
                     sys.exit(0)
                 except:
@@ -405,4 +405,3 @@ while True: #attempt at moving the server
         sys.exit(0)
     except:
         pass
-    

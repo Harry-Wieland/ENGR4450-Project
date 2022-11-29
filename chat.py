@@ -145,6 +145,7 @@ class Client:
             self.client.send(b'\x20')
         except:
             self.client.connect(('127.0.0.1', 2345))
+            Clientholder.client = self.client
             message = b'\x12'
             self.client.send(message)
         write_thread = threading.Thread(target=self.write)
@@ -207,6 +208,7 @@ class Client:
                     self.client.send(cipher.encrypt(bytes(message, 'utf-8')))
                 except:
                     self.client.connect((self.ip_address, 2345))
+                    Clientholder.client = self.client
                     fix = b'\x12'
                     self.client.send(fix)
                     message = f'{connceted.nickname}: {input("")}'

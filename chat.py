@@ -1,6 +1,6 @@
 # The startup of the code goes python chat.py for the server and python chat.py [ip_address] for a client
 # Multiple clients on one machine will break the p2p functionality due to the port still being open and staying open indefinitely when trying to open
-# This code was written by Dominic and Collin and ruined by Harry
+# This code was written by Dominic, Collin and Harry
 # Somewhat inspired by NeuralNine and howCode on youtube
 # 
 import threading
@@ -549,4 +549,3 @@ while True: #attempt at moving the server
         sys.exit(0)
     except:
         pass
-    

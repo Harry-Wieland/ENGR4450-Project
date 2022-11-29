@@ -257,6 +257,7 @@ class Game:
     game = False
     check = False
     kill = False
+    numberPlayerstoStart = 3 #update to 7
     
     def commands(self, command):
         if command[:5] == "!vote":
@@ -320,7 +321,7 @@ class Game:
     def start(self, other):
         num_players = len(p2p.nicknames)
         if other == 1 and not self.game:
-            if num_players >= 3: 
+            if num_players >= self.numberPlayerstoStart: 
                 self.total_players = num_players
                 self.mafia_player = random.randint(0, num_players-1)
                 self.invest_player = random.randint(0, num_players-1)

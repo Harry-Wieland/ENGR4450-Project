@@ -11,14 +11,11 @@ import socket
 import sys
 import random
 from random import randint
-from collections import defaultdict
 from cryptography.fernet import Fernet
 
 key = b'q50ZCbQISUOyxJKIanr8KHC2LherjkESbwkBiSbOiBI='
 
 cipher = Fernet(key)
-
-client = None
 
 class Server:
     clients = []
@@ -35,7 +32,7 @@ class Server:
             clients, address = server.accept()
             
 
-    #Sends the client a keyword so user knows to send a nickname
+            #Sends the client a keyword so user knows to send a nickname
             clients.send('NICK'.encode('utf-8'))
             message = clients.recv(1024)
             if message == b'\x12':
@@ -43,7 +40,6 @@ class Server:
             else:
                 nickname = message.decode('utf-8')
                 nickname = nickname.rstrip()
-                print(f"'{nickname}'")
                 self.nicknames.append(nickname)
                 self.clients.append(clients)
                 self.peers.append(address[0])
@@ -123,10 +119,8 @@ class Server:
                 pass
     def sendNames(self):
         n = ""
-        print(self.nicknames)
         for nickname in self.nicknames:
             n = n + nickname + ","
-        print(n)
         for clients in self.clients:
             try:
                 clients.send(b'\x13' + n.encode('utf-8'))
@@ -143,8 +137,7 @@ class Client:
         self.client.connect((address, 2345))
         if connceted.nickname == "":
             connceted.nickname = input("Choose a nickname ")
-            print(f"'{connceted.nickname}'")
-        message = self.client.recv(1024)
+        Clientholder.client = self.client
         receive_thread = threading.Thread(target=self.receive)
         receive_thread.start()
         self.client.send(connceted.nickname.encode('utf-8'))
@@ -172,19 +165,20 @@ class Client:
                     self.updatePeers(message[1:])
                 elif message[0:1] == b'\x13':
                     self.updateNicknames(message[1:])
-
+                elif message[0:1] == b'\x14':
+                    pass
                 elif message[0:1] == b'\x16':
-                    game.otherVote(int(message[1:]))
+                    game.otherVote(int.from_bytes(message[1:], "big"))
                 elif message[0:1] == b'\x17':
-                    game.otherKill(int(message[1:]))
+                    game.otherKill(int.from_bytes(message[1:], "big"))
                 elif message[0:1] == b'\x18':
-                    game.invest_player = int(message[1:])
-                    if game.invest_player == connceted.nickname:
+                    game.commands("start")
+                    game.invest_player = int.from_bytes(message[1:], "big")
+                    if game.invest_player == connceted.nicknameNum:
                         print("You are the invest")
-                    game.start(0)
                 elif message[0:1] == b'\x19':
-                    game.mafia_player = int(message[1:])
-                    if game.invest_player == connceted.nickname:
+                    game.mafia_player = int.from_bytes(message[1:], "big")
+                    if game.mafia_player == connceted.nicknameNum:
                         print("You are the Mafia")
                 else:
                     msg = cipher.decrypt(message)
@@ -203,10 +197,10 @@ class Client:
             command = input("")
             if command[0:1] == '!':
                 game.commands(command)
-            elif not Game.day:
+            elif not game.day:
                 print("Its night")
             elif game.dead:
-                print("No speak, dead")
+                print("Cannot speak you are dead")
             else:
                 message = f'{connceted.nickname}: {command}'
                 try:
@@ -237,6 +231,8 @@ class Client:
                 connceted.nicknameNum = i
             i += 1
             
+class Clientholder:
+    client = None
 
 class p2p: # holds list of connected ip_Addresses
     peers = []
@@ -255,36 +251,60 @@ class Game:
     invest_player = 0
     deadList = []
     dead = False
-    vote = defaultdict()
+    vote = {}
     voted = False
     day = True
     game = False
+    check = False
+    kill = False
     
     def commands(self, command):
         if command[:5] == "!vote":
             try:
-                number = p2p.nicknames.index(command[6:])
-                self.vote(number)
+                name = command[6:]
+                number = 0
+                for names in p2p.nicknames:
+                    if names == name:
+                        break
+                    number += 1
+                self.Vote(number)
             except:
                 print("Not a name")
         elif command[:5] == "!dead":
             try:
-                number = p2p.nicknames.index(command[6:])
+                name = command[6:]
+                number = 0
+                for names in p2p.nicknames:
+                    if names == name:
+                        break
+                    number += 1
                 self.voteKill(number)
             except:
                 print("Not a name")
-        elif command == "!kill":
+        elif command[:5] == "!kill":
             try:
-                number = p2p.nicknames.index(command[6:])
-                self.vote(number)
+                name = command[6:]
+                number = 0
+                for names in p2p.nicknames:
+                    if names == name:
+                        break
+                    number += 1
+                self.mafia_kill(number)
             except:
                 print("Not a name")
         elif command == "!start":
             self.start(1)
+        elif command == "start":
+            self.start(0)
         elif command[:7] == "!invest":
             try:
-                number = p2p.nicknames.index(command[8:])
-                self.vote(number)
+                name = command[8:]
+                number = 0
+                for names in p2p.nicknames:
+                    if names == name:
+                        break
+                    number += 1
+                self.investigation(number)
             except:
                 print("Not a name")
         elif command == "!nicknames":
@@ -300,90 +320,157 @@ class Game:
     def start(self, other):
         num_players = len(p2p.nicknames)
         if other == 1 and not self.game:
-            if num_players >= 7: 
+            if num_players >= 3: 
                 self.total_players = num_players
-                self.mafia_player = random.randint(0, num_players)
-                self.invest_player = random.randint(0, num_players)
+                self.mafia_player = random.randint(0, num_players-1)
+                self.invest_player = random.randint(0, num_players-1)
                 self.game = True
                 timer_thread = threading.Thread(target=self.timer)
                 timer_thread.start()
                 if self.mafia_player == self.invest_player:
-                    self.invest_player = random.randint(0, num_players)
+                    self.invest_player -= 1
+                    if self.invest_player == -1:
+                        self.invest_player = 1
+                print("Game Start")
                 v = self.invest_player
-                client.send(b'\x18' + bytes(v))
+                if self.invest_player == connceted.nicknameNum:
+                    print("You are the Invest")
+                Clientholder.client.send(b'\x18' + v.to_bytes(2, 'big'))
                 v = self.mafia_player
-                client.send(b'\x19' + bytes(v))  
+                if self.mafia_player == connceted.nicknameNum:
+                    print("You are the Mafia")
+                Clientholder.client.send(b'\x19' + v.to_bytes(2, 'big'))
             else:
                 print("Not enough Players")
         elif not self.game:
+            self.total_players = num_players
             self.game = True
+            print("Game Start")
             timer_thread = threading.Thread(target=self.timer)
             timer_thread.start()
 
     def mafia_kill(self, number):
         if not self.day and self.game:
-            if number != self.mafia_player and connceted.nicknameNum == self.mafia_player:
-                self.deadList.append(number)
-                self.total_players -= 1
-                v = p2p.nicknames[number]
-                client.send(b'\x17' + bytes(v))
-                if self.total_players < 3:
-                    self.game = False
-                    self.dead = False
-                    print("game end mafia wins")
+            if not self.kill:
+                if number != self.mafia_player and connceted.nicknameNum == self.mafia_player:
+                    self.deadList.append(number)
+                    print(f"{p2p.nicknames[number]} has died")
+                    self.total_players -= 1
+                    self.kill = True
+                    v = number
+                    Clientholder.client.send(b'\x17' + v.to_bytes(2, 'big'))
+                    if self.total_players < 3:
+                        self.game = False
+                        self.dead = False
+                        self.day = True
+                        self.check = False
+                        self.kill = False
+                        self.voted = False
+                        print("Game Over Mafia Wins")
+                elif connceted.nicknameNum != self.mafia_player:
+                    print("You are not Mafia")
+                else:
+                    print("Mafia cannot kill Mafia")
+            else:
+                print("already killed tonight")
 
         else:
             print("it is day")
 
     def investigation(self, number):
         if not self.day and self.game:
-            if number == self.mafia_player and connceted.nicknameNum == self.invest_player:
-                print ("Is mafia")
-            if connceted.nicknameNum == self.invest_player:
-                print ("Is not mafia")
-            if connceted.nicknameNum != self.invest_player:
-                print ("You are not the invest")
-        else:
+            if not self.check:
+                if number == self.invest_player:
+                    print("cannot invest self")
+                elif number == self.mafia_player and connceted.nicknameNum == self.invest_player:
+                    print ("Is mafia")
+                    self.check = True
+                elif connceted.nicknameNum != self.invest_player:
+                    print("You are not invest")
+                else:
+                    print ("Is not mafia")
+                    self.check = True
+            else:
+                print("already checked tonight")
+        elif self.day:
             print("it is day")
+        else:
+            print("not in game")
             
     def Vote(self, number):
         if self.day and self.game:
-            if number not in self.deadList and not self.voted:
-                self.vote[number] += 1
+            if self.dead:
+                print("cant vote you are dead")
+            elif not self.voted:
+
+                try:
+                    self.vote[number] += 1
+                except:
+                    self.vote[number] = self.vote.get(number, 0) + 1
+
                 self.voted = True
-                message = f'{connceted.nickname}: "Voted for " {p2p.nicknames[number]}'
-                client.send(message.encode('utf-8'))
-                v = p2p.nicknames[number]
-                client.send(b'\x16' + bytes(v))
+                message = f'{connceted.nickname}:Voted for {p2p.nicknames[number]}'
+
+                Clientholder.client.send(cipher.encrypt(bytes(message, 'utf-8')))
+                
+                Clientholder.client.send(b'\x16' + number.to_bytes(2, 'big'))
+                print(self.vote[number])
             elif self.voted:
-                print("already voted")
+                print("already voted today")
             else:
                 print("Vote not counted")
+        else:
+            print("not in game")
 
-    def otherVote(self, name):
-        number = p2p.nicknames.index(name)
-        self.vote[number] += 1
+    def otherVote(self, number):
+        try:
+            self.vote[number] += 1
+        except:
+            self.vote[number] = self.vote.get(number, 0) + 1
+        print(self.vote[number])
 
     def voteKill(self, number):
         if number == self.mafia_player:
+            print(f"{p2p.nicknames[number]} has died")
             self.game = False
             self.dead = False
-            print("game end town wins")
+            self.day = True
+            self.check = False
+            self.kill = False
+            self.voted = False
+            print("Game Over Town Wins")
         else:
             self.deadList.append(number)
+            print(f"{p2p.nicknames[number]} has died")
+            if number == connceted.nicknameNum:
+                self.dead = True
             self.total_players -= 1
             if self.total_players < 3:
                 self.game = False
                 self.dead = False
-                print("game end Mafia wins")
+                self.day = True
+                self.check = False
+                self.kill = False
+                self.voted = False
+                print("Game Over Mafia Wins")
             
-    def otherKill(self, name):
-        number = p2p.nicknames.index(name)
+    def otherKill(self, number):
         self.deadList.append(number)
+        print(f"{p2p.nicknames[number]} has died")
+        if number == connceted.nicknameNum:
+            self.dead = True
         self.total_players -= 1
+        if self.total_players < 3:
+            self.game = False
+            self.dead = False
+            self.day = True
+            self.check = False
+            self.kill = False
+            self.voted = False
+            print("Game Over Mafia Wins")
     
     def timer(self):
-        t = 60
+        t = 30
         while True: 
             if not self.game:
                 break
@@ -394,13 +481,21 @@ class Game:
             if t == 0 and self.day: 
                 print ("Its now night")
                 self.day = False
+                self.voted = False
                 t = 30
+                i = 0
+                if self.total_players % 2 == 0:
+                    i = round(self.total_players/2) + 1
+                else:
+                    i = round(self.total_players/2)
                 for votes in self.vote:
-                    if self.vote[votes] >= self.total_players/2:
+                    if self.vote[votes] >= i:
                         self.voteKill(votes)
                     self.vote[votes] = 0
             elif t == 0 and not self.day:
                 print ("Its now Day")
+                self.check = False
+                self.kill = False
                 self.day = True
                 t = 30
             time.sleep(1) 
@@ -418,7 +513,6 @@ if __name__ == '__main__':
         hostname = socket.gethostname()
         ## getting the IP address using socket.gethostbyname() method
         ip_address = socket.gethostbyname(hostname)
-        print(ip_address)
         connceted.connected = True
         client = Client(ip_address)
     if (len(sys.argv) > 1):  #starts the program client only

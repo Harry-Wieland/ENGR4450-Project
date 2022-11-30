@@ -194,7 +194,6 @@ class Client:
 
     def write(self): #send message to server
         while True:
-            cipher = Fernet(key)
             command = input("")
             if command[0:1] == '!':
                 game.commands(command)

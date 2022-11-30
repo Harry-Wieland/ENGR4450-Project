@@ -5,7 +5,6 @@
 # 
 import threading
 from multiprocessing import Process
-import os
 import time
 import socket
 import sys
@@ -195,6 +194,7 @@ class Client:
 
     def write(self): #send message to server
         while True:
+            cipher = Fernet(key)
             command = input("")
             if command[0:1] == '!':
                 game.commands(command)
@@ -207,12 +207,7 @@ class Client:
                 try:
                     self.client.send(cipher.encrypt(bytes(message, 'utf-8')))
                 except:
-                    self.client.connect((self.ip_address, 2345))
-                    Clientholder.client = self.client
-                    fix = b'\x12'
-                    self.client.send(fix)
-                    message = f'{connceted.nickname}: {input("")}'
-                    self.client.send(cipher.encrypt(bytes(message, 'utf-8')))
+                    pass
                 
             if self.end == True:
                 self.client.close()

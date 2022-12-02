@@ -21,8 +21,6 @@ cipher = Fernet(key)
 def CreateServer():
     return Server()
 
-def CreateClient():
-    return Client()
 
 #this is the server class it was made host the clients
 class Server:
@@ -495,7 +493,7 @@ if __name__ == '__main__': #the program starts here
         ## getting the IP address using socket.gethostbyname() method
         ip_address = socket.gethostbyname(hostname)
         connected.connected = True
-        client = CreateClient(ip_address) #starts the client
+        client = Client(ip_address) #starts the client
     if (len(sys.argv) > 1):  #starts the program client only
         connected.connected = True
         client = Client(sys.argv[1])
@@ -518,8 +516,6 @@ while True: #attempt at moving the server
                 try:
                     server = Process(target=CreateServer, args=())
                     server.start() #Start the server
-                    connected.connected = True
-                    client = CreateClient(p2p.peers[1]) #restart the client
                 except KeyboardInterrupt: #way to exit
                     sys.exit(0)
                 except: #there was a bad falure

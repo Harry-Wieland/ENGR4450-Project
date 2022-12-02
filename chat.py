@@ -222,6 +222,7 @@ class p2p: # holds list of connected ip_Addresses, nicknames, your ip
     nicknames = []
     ipAddress = ''
     knowIP = False
+    isServer = False
 class connected: #checks connection and holds nickname
     connected = False
     nickname = ""
@@ -486,6 +487,7 @@ class Game: #this is the inner class for the game
 game = Game() #set the game into a global variable
 if __name__ == '__main__': #the program starts here
     if (len(sys.argv) == 1): #starts the program
+        p2p.isServer = True
         server = Process(target=CreateServer, args=())
         server.start() #starts the server
         ## getting the hostname by socket.gethostname() method
@@ -502,7 +504,7 @@ while True: #attempt at moving the server
     try:
         if connected.connected == False: #if connected it should not be running this
             print("Connecting") #tell users it is connecting
-            time.sleep(randint(1, 5)) #wait a random amout of seconds between 1 and 5
+            time.sleep(1) #wait a 1 second connecting
             try:
                 print(p2p.peers[1]) #try to connect to second peer in connections
                 client = Client(p2p.peers[1])
@@ -514,8 +516,10 @@ while True: #attempt at moving the server
             if p2p.peers[1] == p2p.ipAddress: #you are second peer in connections
                 print("ReStarting Server")
                 try:
-                    server = Process(target=CreateServer, args=())
-                    server.start() #Start the server
+                    if not p2p.isServer:
+                        server = Process(target=CreateServer, args=())
+                        p2p.isServer = True
+                        server.start() #Start the server
                 except KeyboardInterrupt: #way to exit
                     sys.exit(0)
                 except: #there was a bad falure

@@ -508,7 +508,7 @@ while True: #attempt at moving the server
     try:
         if connected.connected == False: #if connected it should not be running this
             print("Connecting") #tell users it is connecting
-            time.sleep(1) #wait a 1 second connecting
+            time.sleep(3) #wait a 3 seconds before connecting
             try:
                 print(p2p.peers[1]) #try to connect to second peer in connections
                 client = Client(p2p.peers[1])

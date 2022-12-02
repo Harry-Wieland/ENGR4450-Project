@@ -9,7 +9,6 @@ import time
 import socket
 import sys
 import random
-from random import randint
 from cryptography.fernet import Fernet
 
 

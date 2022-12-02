@@ -394,7 +394,7 @@ class Game: #this is the inner class for the game
                 self.voted = True
                 message = f'{connected.nickname}:Voted for {p2p.nicknames[number]}' #send that you have voted for who
 
-                Clientholder.client.send(connected.cipher.encrypt(bytes(message, 'utf-8')))
+                Clientholder.client.send(message.encode('utf-8'))
                 
                 Clientholder.client.send(b'\x16' + number.to_bytes(2, 'big')) #send that you have voted for who
             elif self.voted:

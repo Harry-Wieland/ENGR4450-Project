@@ -18,6 +18,12 @@ key = b'q50ZCbQISUOyxJKIanr8KHC2LherjkESbwkBiSbOiBI='
 #Mke the method for the encription
 cipher = Fernet(key)
 
+def CreateServer():
+    return Server()
+
+def CreateClient():
+    return Client()
+
 #this is the server class it was made host the clients
 class Server:
     #these are lists to hold the nicknames the clients and the 
@@ -482,14 +488,14 @@ class Game: #this is the inner class for the game
 game = Game() #set the game into a global variable
 if __name__ == '__main__': #the program starts here
     if (len(sys.argv) == 1): #starts the program
-        server = Process(target=Server, args=())
+        server = Process(target=CreateServer, args=())
         server.start() #starts the server
         ## getting the hostname by socket.gethostname() method
         hostname = socket.gethostname()
         ## getting the IP address using socket.gethostbyname() method
         ip_address = socket.gethostbyname(hostname)
         connected.connected = True
-        client = Client(ip_address) #starts the client
+        client = CreateClient(ip_address) #starts the client
     if (len(sys.argv) > 1):  #starts the program client only
         connected.connected = True
         client = Client(sys.argv[1])
@@ -510,10 +516,10 @@ while True: #attempt at moving the server
             if p2p.peers[1] == p2p.ipAddress: #you are second peer in connections
                 print("ReStarting Server")
                 try:
-                    server = Process(target=Server, args=())
+                    server = Process(target=CreateServer, args=())
                     server.start() #Start the server
                     connected.connected = True
-                    client = Client(p2p.peers[1]) #restart the client
+                    client = CreateClient(p2p.peers[1]) #restart the client
                 except KeyboardInterrupt: #way to exit
                     sys.exit(0)
                 except: #there was a bad falure

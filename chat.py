@@ -298,6 +298,7 @@ class Game: #this is the inner class for the game
                 print("Not a name")
         elif command == "!nicknames": #print list of nicknames
             print(p2p.nicknames)
+            print(p2p.peers)
         elif command == "!help": #give help to others
             print("commands \n!start to start the game\n!vote [nickname] to vote a player\n!nicknames to get a list of nicknames")
             print("!kill [nickname] to chose a player to die\n!invest [nickname] to investigate a player")

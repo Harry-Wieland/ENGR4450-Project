@@ -521,7 +521,6 @@ while True: #attempt at moving the server
                         server = Process(target=CreateServer, args=())
                         p2p.isServer = True
                         server.start() #Start the server
-                        time.sleep(.1)
                         client = Client(p2p.peers[1])
                         connected.connected = True
                 except KeyboardInterrupt: #way to exit

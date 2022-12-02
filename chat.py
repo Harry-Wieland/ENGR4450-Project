@@ -12,11 +12,9 @@ import random
 from random import randint
 from cryptography.fernet import Fernet
 
-#the key for the encription
-key = b'q50ZCbQISUOyxJKIanr8KHC2LherjkESbwkBiSbOiBI='
 
-#Mke the method for the encription
-cipher = Fernet(key)
+
+
 
 def CreateServer():
     return Server()
@@ -48,13 +46,14 @@ class Server:
             self.clients.append(clients)
             self.peers.append(address[0])
             self.sendPeers()
+            time.sleep(.1)
             self.sendNames()
             time.sleep(.1)
             #Lets everyone know who joined the chat and the particular client it worked
             message = 'Connected to the server!'
-            clients.send(cipher.encrypt(bytes(message, 'utf-8')))
+            clients.send(message.encode('utf-8'))
             message = f'{nickname} joined the chat'
-            self.broadcast(cipher.encrypt(bytes(message, 'utf-8')), clients)
+            self.broadcast(message.encode('utf-8'), clients)
             
             thread = threading.Thread(target=self.handle, args=(clients, address)) #new thread is created
             thread.start()
@@ -84,7 +83,7 @@ class Server:
                     client.close()
                     nickname = self.nicknames[index]
                     self.disconect("!dead" + nickname) #displays the client is dead
-                    self.disconect(cipher.encrypt(bytes(f'{nickname} left the chat', 'utf-8')))
+                    self.disconect(f'{nickname} left the chat'.encode('utf-8'))
                     self.nicknames.remove(nickname)
                     self.peers.remove(address[0]) #removes dead player usernmame from list
                     self.sendPeers() #sends remaining peers
@@ -98,7 +97,7 @@ class Server:
                 client.close()
                 nickname = self.nicknames[index]
                 self.disconect("!dead" + nickname) #displays the client is dead
-                self.disconect(cipher.encrypt(bytes(f'{nickname} left the chat', 'utf-8')))
+                self.disconect(f'{nickname} left the chat'.encode('utf-8'))
                 self.nicknames.remove(nickname) #removes dead player username from list
                 self.peers.remove(address[0])
                 self.sendPeers() #sends remaining peers
@@ -168,8 +167,8 @@ class Client:
                     if game.mafia_player == connected.nicknameNum:
                         print("You are the Mafia")
                 else:
-                    msg = connected.cipher.decrypt(message) #decripts message
-                    print(str(msg, 'utf-8')) #makes message readable
+                    
+                    print(str(message, 'utf-8')) #makes message readable
             except:
                 print("An error occurred!")
                 self.client.close()
@@ -190,10 +189,9 @@ class Client:
                 print("Cannot speak you are dead")
             else:
                 message = f'{connected.nickname}: {command}'
-                try:
-                    self.client.send(connected.cipher.encrypt(bytes(message, 'utf-8')))
-                except:
-                    pass
+
+                self.client.send(message.encode('utf-8'))
+
                 
             if self.end == True:
                 self.client.close()
@@ -227,7 +225,6 @@ class connected: #checks connection and holds nickname
     connected = False
     nickname = ""
     nicknameNum = 0
-    cipher = Fernet(key)
 
 class Game: #this is the inner class for the game
     #initalize game variables
@@ -483,7 +480,7 @@ class Game: #this is the inner class for the game
             time.sleep(1) #wait one second
             t -= 1
 
-
+connected = connected()
 game = Game() #set the game into a global variable
 if __name__ == '__main__': #the program starts here
     if (len(sys.argv) == 1): #starts the program

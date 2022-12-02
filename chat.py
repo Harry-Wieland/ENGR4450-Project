@@ -87,7 +87,9 @@ class Server:
                     self.peers.remove(address[0]) #removes dead player usernmame from list
                     self.sendPeers() #sends remaining peers
                     self.sendNames() #sends remaining nicknames
-                    break                
+                    break
+                elif message == b'\x20':
+                    pass             
                 else:
                     self.broadcast(message, client) #displays message from client to everyone
             except: #clent dead end connection
@@ -191,7 +193,7 @@ class Client:
                 try:
                     self.client.send(connected.cipher.encrypt(bytes(message, 'utf-8')))
                 except:
-                    self.client.send(connected.cipher.encrypt(bytes(message, 'utf-8')))
+                    self.client.send(b'\x20')
                 
             if self.end == True:
                 self.client.close()

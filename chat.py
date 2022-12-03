@@ -196,7 +196,7 @@ class Client:
                 try:
                     self.client.send(connected.cipher.encrypt(bytes(message, 'utf-8')))
                 except:
-                    Clientholder.client.client.send(connected.cipher.encrypt(bytes(message, 'utf-8')))
+                    Clientholder.client.send(connected.cipher.encrypt(bytes(message, 'utf-8')))
                 
             if self.end == True:
                 self.client.close()

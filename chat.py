@@ -126,6 +126,7 @@ class Client:
     end = False
     client = None
     ip_address = ''
+    clientDead = False #sets up the fix to end the write thread
     def __init__(self, address): #client starting with ip address
         self.ip_address = address
         self.client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -146,6 +147,7 @@ class Client:
                     print("An error occurred!")
                     connected.connected = False
                     self.client.close()
+                    self.clientDead = True #kill write thread
                     break
                 if str(message, 'utf-8') == 'NICK': #send the nickname back
                     self.client.send(connected.nickname.encode('utf-8'))
@@ -180,6 +182,8 @@ class Client:
 
     def write(self): #send message to server
         while True:
+            if self.clientDead: #kill write thread
+                break
             command = input("")
             if command[0:1] == '!':
                 game.commands(command)
@@ -192,7 +196,7 @@ class Client:
                 try:
                     self.client.send(connected.cipher.encrypt(bytes(message, 'utf-8')))
                 except:
-                    self.client.send(b'\x20')
+                    Clientholder.client.client.send(connected.cipher.encrypt(bytes(message, 'utf-8')))
                 
             if self.end == True:
                 self.client.close()
@@ -215,6 +219,7 @@ class Client:
             
 class Clientholder: #holds the client for the game to access
     client = None
+    messsage = ""
 
 class p2p: # holds list of connected ip_Addresses, nicknames, your ip
     peers = []

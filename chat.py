@@ -219,7 +219,6 @@ class Client:
             
 class Clientholder: #holds the client for the game to access
     client = None
-    messsage = ""
 
 class p2p: # holds list of connected ip_Addresses, nicknames, your ip
     peers = []

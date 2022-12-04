@@ -539,15 +539,14 @@ while True: #attempt at moving the server
             except:
                 pass
             if p2p.peers[1] == p2p.ipAddress: #you are second peer in connections
-                print("ReStarting Server")
                 try:
                     if not p2p.isServer:
                         server = Process(target=CreateServer, args=())
                         p2p.isServer = True
                         server.start() #Start the server
+                        connected.connected = True
                         ip_address = socket.gethostbyname(p2p.peers[1])
                         client = Client(p2p.peers[1])
-                        connected.connected = True
                 except KeyboardInterrupt: #way to exit
                     sys.exit(0)
                 except: #there was a bad falure

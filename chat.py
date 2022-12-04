@@ -106,7 +106,7 @@ class Server:
                 break
     def sendPeers(self): #allows you to get all ip addresses
         try:
-            print(f'{self.peers[1]} {p2p.hostIP}')
+            print(f'{self.peers[1]} {p2p.peers[1]}')
             if self.peers[1] == p2p.hostIP: #make sure the second client connected is not the host client
                 ip_addressSave = self.peers[0] #save data to be swapped
                 clientSave = self.clients[0]
@@ -505,7 +505,7 @@ class Game: #this is the inner class for the game
                 t = 30
             time.sleep(1) #wait one second
             t -= 1
-p2p = p2p()
+
 connected = connected()
 game = Game() #set the game into a global variable
 if __name__ == '__main__': #the program starts here
@@ -518,7 +518,6 @@ if __name__ == '__main__': #the program starts here
         ## getting the IP address using socket.gethostbyname() method
         ip_address = socket.gethostbyname(hostname)
         connected.connected = True
-        p2p.hostIP = ip_address #set host IP
         client = Client(ip_address) #starts the client
     if (len(sys.argv) > 1):  #starts the program client only
         connected.connected = True
@@ -544,9 +543,6 @@ while True: #attempt at moving the server
                         server = Process(target=CreateServer, args=())
                         p2p.isServer = True
                         server.start() #Start the server
-                        connected.connected = True
-                        ip_address = socket.gethostbyname(p2p.peers[1])
-                        client = Client(p2p.peers[1])
                 except KeyboardInterrupt: #way to exit
                     sys.exit(0)
                 except: #there was a bad falure

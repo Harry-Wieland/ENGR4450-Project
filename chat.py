@@ -104,21 +104,38 @@ class Server:
                 self.sendNames() #sends remaining nicknames
                 break
     def sendPeers(self): #allows you to get all ip addresses
+        ## getting the hostname by socket.gethostname() method
+        hostname = socket.gethostname()
+        ## getting the IP address using socket.gethostbyname() method
+        ip_address = socket.gethostbyname(hostname)
+        try:
+            if self.peers[1] == ip_address: #make sure the second client connected is not the host client
+                ip_addressSave = self.peers[0] #save data to be swapped
+                clientSave = self.clients[0]
+                nameSave = self.nicknames[0]
+                self.peers[0] = self.peers[1] #swap IPs
+                self.peers[1] = ip_addressSave
+                self.clients[0] = self.clients[1] #swap client
+                self.clients[1] = clientSave
+                self.nicknames[0] = self.nicknames[1] #swap names
+                self.nicknames[1] = nameSave
+        except:
+            pass
         p = ""
-        for peer in self.peers:
+        for peer in self.peers: #combine IP Adresses
             p = p + peer + ","
         for clients in self.clients:
             try:
-                clients.send(b'\x11' + p.encode('utf-8'))
+                clients.send(b'\x11' + p.encode('utf-8'))  #send IP Adresses
             except:
                 pass
     def sendNames(self):  #allows you to get the nicknames
         n = ""
-        for nickname in self.nicknames:
+        for nickname in self.nicknames: #combine nicknames
             n = n + nickname + ","
         for clients in self.clients:
             try:
-                clients.send(b'\x13' + n.encode('utf-8'))
+                clients.send(b'\x13' + n.encode('utf-8')) #send nicknames
             except:
                 pass
 
@@ -511,7 +528,7 @@ while True: #attempt at moving the server
     try:
         if connected.connected == False: #if connected it should not be running this
             print("Connecting") #tell users it is connecting
-            time.sleep(3) #wait a 3 seconds before connecting
+            time.sleep(5) #wait a 5 seconds before connecting
             try:
                 print(p2p.peers[1]) #try to connect to second peer in connections
                 client = Client(p2p.peers[1])

@@ -85,6 +85,7 @@ class Server:
                     self.nicknames.remove(nickname)
                     self.peers.remove(address[0]) #removes dead player usernmame from list
                     self.sendPeers() #sends remaining peers
+                    time.sleep(.1) #wait for peers to send
                     self.sendNames() #sends remaining nicknames
                     break
                 elif message == b'\x20':
@@ -108,6 +109,7 @@ class Server:
         hostname = socket.gethostname()
         ## getting the IP address using socket.gethostbyname() method
         ip_address = socket.gethostbyname(hostname)
+        print(f'{self.peers[1]} {ip_address}')
         try:
             if self.peers[1] == ip_address: #make sure the second client connected is not the host client
                 ip_addressSave = self.peers[0] #save data to be swapped

@@ -109,8 +109,8 @@ class Server:
         hostname = socket.gethostname()
         ## getting the IP address using socket.gethostbyname() method
         ip_address = socket.gethostbyname(hostname)
-        print(f'{self.peers[1]} {ip_address}')
         try:
+            print(f'{self.peers[1]} {ip_address}')
             if self.peers[1] == ip_address: #make sure the second client connected is not the host client
                 ip_addressSave = self.peers[0] #save data to be swapped
                 clientSave = self.clients[0]

@@ -107,7 +107,7 @@ class Server:
     def sendPeers(self): #allows you to get all ip addresses
         try:
             print(f'{self.peers[1]} {p2p.peers[1]}')
-            if self.peers[1] == p2p.hostIP: #make sure the second client connected is not the host client
+            if self.peers[1] == p2p.peers[1]: #make sure the second client connected is not the host client
                 ip_addressSave = self.peers[0] #save data to be swapped
                 clientSave = self.clients[0]
                 nameSave = self.nicknames[0]
@@ -241,7 +241,6 @@ class p2p: # holds list of connected ip_Addresses, nicknames, your ip
     ipAddress = ''
     knowIP = False
     isServer = False
-    hostIP = ''
 class connected: #checks connection and holds nickname
     connected = False
     nickname = ""

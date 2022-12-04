@@ -106,7 +106,6 @@ class Server:
                 break
     def sendPeers(self): #allows you to get all ip addresses
         try:
-            print(f'{self.peers[1]} {p2p.peers[1]}')
             if self.peers[1] == p2p.peers[1]: #make sure the second client connected is not the host client
                 ip_addressSave = self.peers[0] #save data to be swapped
                 clientSave = self.clients[0]

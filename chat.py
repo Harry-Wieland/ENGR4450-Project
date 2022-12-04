@@ -505,20 +505,20 @@ class Game: #this is the inner class for the game
                 t = 30
             time.sleep(1) #wait one second
             t -= 1
-
+p2p = p2p()
 connected = connected()
 game = Game() #set the game into a global variable
 if __name__ == '__main__': #the program starts here
     if (len(sys.argv) == 1): #starts the program
         p2p.isServer = True
+        server = Process(target=CreateServer, args=())
+        server.start() #starts the server
         ## getting the hostname by socket.gethostname() method
         hostname = socket.gethostname()
         ## getting the IP address using socket.gethostbyname() method
         ip_address = socket.gethostbyname(hostname)
         connected.connected = True
         p2p.hostIP = ip_address #set host IP
-        server = Process(target=CreateServer, args=())
-        server.start() #starts the server
         client = Client(ip_address) #starts the client
     if (len(sys.argv) > 1):  #starts the program client only
         connected.connected = True
@@ -542,10 +542,10 @@ while True: #attempt at moving the server
                 print("ReStarting Server")
                 try:
                     if not p2p.isServer:
-                        ip_address = socket.gethostbyname(p2p.peers[1])
                         server = Process(target=CreateServer, args=())
                         p2p.isServer = True
                         server.start() #Start the server
+                        ip_address = socket.gethostbyname(p2p.peers[1])
                         client = Client(p2p.peers[1])
                         connected.connected = True
                 except KeyboardInterrupt: #way to exit

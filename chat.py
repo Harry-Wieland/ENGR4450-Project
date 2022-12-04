@@ -105,13 +105,9 @@ class Server:
                 self.sendNames() #sends remaining nicknames
                 break
     def sendPeers(self): #allows you to get all ip addresses
-        ## getting the hostname by socket.gethostname() method
-        hostname = socket.gethostname()
-        ## getting the IP address using socket.gethostbyname() method
-        ip_address = socket.gethostbyname(hostname)
         try:
-            print(f'{self.peers[1]} {ip_address}')
-            if self.peers[1] == ip_address: #make sure the second client connected is not the host client
+            print(f'{self.peers[1]} {p2p.hostIP}')
+            if self.peers[1] == p2p.hostIP: #make sure the second client connected is not the host client
                 ip_addressSave = self.peers[0] #save data to be swapped
                 clientSave = self.clients[0]
                 nameSave = self.nicknames[0]
@@ -245,6 +241,7 @@ class p2p: # holds list of connected ip_Addresses, nicknames, your ip
     ipAddress = ''
     knowIP = False
     isServer = False
+    hostIP = ''
 class connected: #checks connection and holds nickname
     connected = False
     nickname = ""
@@ -521,6 +518,7 @@ if __name__ == '__main__': #the program starts here
         ## getting the IP address using socket.gethostbyname() method
         ip_address = socket.gethostbyname(hostname)
         connected.connected = True
+        p2p.hostIP = ip_address #set host IP
         client = Client(ip_address) #starts the client
     if (len(sys.argv) > 1):  #starts the program client only
         connected.connected = True
@@ -533,6 +531,7 @@ while True: #attempt at moving the server
             time.sleep(3) #wait a 3 seconds before connecting
             try:
                 print(p2p.peers[1]) #try to connect to second peer in connections
+                ip_address = socket.gethostbyname(p2p.peers[1])
                 client = Client(p2p.peers[1])
                 connected.connected = True
             except KeyboardInterrupt: #way to exit
@@ -546,6 +545,7 @@ while True: #attempt at moving the server
                         server = Process(target=CreateServer, args=())
                         p2p.isServer = True
                         server.start() #Start the server
+                        ip_address = socket.gethostbyname(p2p.peers[1])
                         client = Client(p2p.peers[1])
                         connected.connected = True
                 except KeyboardInterrupt: #way to exit
